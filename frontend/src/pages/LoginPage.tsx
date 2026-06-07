@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/Toast';
-import { validateEmail, validatePassword } from '@/lib/validation';
+import { validateEmail } from '@/lib/validation';
 
 interface FieldErrors {
   email?: string;

@@ -1,4 +1,4 @@
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { forwardRef, type ReactNode } from 'react';
 import { motion, type HTMLMotionProps } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -24,12 +24,12 @@ const sizes: Record<Size, string> = {
   lg: 'h-13 px-8 text-base py-3.5',
 };
 
-export interface ButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof HTMLMotionProps<'button'>> {
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   variant?: Variant;
   size?: Size;
   isLoading?: boolean;
   fullWidth?: boolean;
+  children?: ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -60,7 +60,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className,
         )}
         disabled={disabled || isLoading}
-        {...(props as HTMLMotionProps<'button'>)}
+        {...(props as unknown as HTMLMotionProps<'button'>)}
       >
         {isLoading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
         {children}

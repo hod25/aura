@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Check,
@@ -47,7 +47,6 @@ export function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
   const { user, isAuthenticated } = useAuth();
   const { notify } = useToast();
-  const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
   const [shipping, setShipping] = useState<ShippingDetails>(() => ({
