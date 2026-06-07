@@ -15,8 +15,10 @@ async function bootstrap(): Promise<void> {
   logger.info('database initialized');
 
   const app = createApp();
-  const server = app.listen(env.port, () => {
-    logger.info('Aura API started', { port: env.port, env: env.nodeEnv });
+  // Bind explicitly to 0.0.0.0 so the server accepts connections bridged in
+  // through the Docker network layer, not just loopback inside the container.
+  const server = app.listen(env.port, '0.0.0.0', () => {
+    logger.info('Aura API started', { port: env.port, env: env.nodeEnv, host: '0.0.0.0' });
   });
 
   // Guards against a signal arriving twice (e.g. double Ctrl+C) and against a

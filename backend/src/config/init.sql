@@ -99,28 +99,45 @@ CREATE TABLE IF NOT EXISTS order_items (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------------------------------
--- Seed: premium sample products (only when the table is empty)
+-- Data integrity restore: purge any legacy placeholder Electronics catalog that
+-- was injected in error, returning the storefront to its premium Furniture &
+-- Living theme. Dependent order_item snapshots are cleared first so the
+-- ON DELETE RESTRICT foreign key cannot block the cleanup. Idempotent.
+-- -----------------------------------------------------------------------------
+DELETE oi FROM order_items oi
+  JOIN products p ON p.id = oi.product_id
+  WHERE p.category IN ('Audio', 'Wearables', 'Computers', 'Cameras',
+                       'Accessories', 'Lifestyle', 'Home');
+
+DELETE FROM products
+  WHERE category IN ('Audio', 'Wearables', 'Computers', 'Cameras',
+                     'Accessories', 'Lifestyle', 'Home');
+
+-- -----------------------------------------------------------------------------
+-- Seed: premium Furniture & Living collection (only when the table is empty).
+-- Image URLs reconcile 1:1 with locally hosted assets served by express.static
+-- from /assets/products/<file>.png (see backend/src/assets/products).
 -- -----------------------------------------------------------------------------
 INSERT INTO products (name, description, category, price, image_url, stock, rating)
 SELECT * FROM (
   SELECT
-    'Aura Apex Wireless Headphones' AS name,
-    'Reference-grade over-ear headphones with adaptive hybrid ANC, 40h battery life and lossless LDAC audio.' AS description,
-    'Audio' AS category,
-    349.00 AS price,
-    'https://images.aura.shop/products/apex-headphones.jpg' AS image_url,
-    120 AS stock,
-    4.8 AS rating
-  UNION ALL SELECT 'Aura Pulse Smartwatch Series 7', 'Titanium-bezel smartwatch with AMOLED always-on display, ECG, SpO2 and 7-day battery.', 'Wearables', 429.00, 'https://images.aura.shop/products/pulse-watch.jpg', 80, 4.7
-  UNION ALL SELECT 'Aura Vista 4K Mirrorless Camera', '33MP full-frame mirrorless body with in-body stabilization and 8K video capture.', 'Cameras', 1899.00, 'https://images.aura.shop/products/vista-camera.jpg', 35, 4.9
-  UNION ALL SELECT 'Aura Glide Pro Laptop 14"', 'Ultralight 1.1kg magnesium laptop with 3K OLED, 32GB RAM and 18-hour battery.', 'Computers', 1599.00, 'https://images.aura.shop/products/glide-laptop.jpg', 50, 4.8
-  UNION ALL SELECT 'Aura Echo Smart Speaker', 'Room-filling 360° sound with spatial audio and built-in smart-home hub.', 'Audio', 199.00, 'https://images.aura.shop/products/echo-speaker.jpg', 200, 4.5
-  UNION ALL SELECT 'Aura Forge Mechanical Keyboard', 'Hot-swappable 75% mechanical keyboard with gasket mount and PBT keycaps.', 'Accessories', 159.00, 'https://images.aura.shop/products/forge-keyboard.jpg', 150, 4.6
-  UNION ALL SELECT 'Aura Drift Ergonomic Mouse', 'Wireless ergonomic mouse with 26K DPI sensor and 90-day battery life.', 'Accessories', 89.00, 'https://images.aura.shop/products/drift-mouse.jpg', 220, 4.4
-  UNION ALL SELECT 'Aura Lumen 27" 5K Monitor', 'Color-accurate 5K Retina monitor with 99% DCI-P3 and Thunderbolt 4 hub.', 'Computers', 1099.00, 'https://images.aura.shop/products/lumen-monitor.jpg', 40, 4.7
-  UNION ALL SELECT 'Aura Nomad Travel Backpack', 'Weatherproof 30L carry-on backpack with dedicated laptop bay and luggage pass-through.', 'Lifestyle', 179.00, 'https://images.aura.shop/products/nomad-backpack.jpg', 300, 4.6
-  UNION ALL SELECT 'Aura Volt 100W GaN Charger', 'Compact 4-port 100W GaN charger that powers a laptop and three devices at once.', 'Accessories', 79.00, 'https://images.aura.shop/products/volt-charger.jpg', 400, 4.5
-  UNION ALL SELECT 'Aura Bloom Robot Vacuum', 'LiDAR-navigation robot vacuum with self-emptying base and mopping.', 'Home', 599.00, 'https://images.aura.shop/products/bloom-vacuum.jpg', 60, 4.6
-  UNION ALL SELECT 'Aura Aero Drone 4K', 'Foldable 4K cinematic drone with obstacle avoidance and 34-minute flight time.', 'Cameras', 999.00, 'https://images.aura.shop/products/aero-drone.jpg', 45, 4.7
+    'Strata Oak Side Table' AS name,
+    'Stacked solid-oak rings form a softly tactile column, crowned by a single seamless disc of hand-oiled timber. A quiet sculptural anchor for the sofa-side.' AS description,
+    'Furniture' AS category,
+    460.00 AS price,
+    'http://localhost:5001/assets/products/strata-oak-side-table.png' AS image_url,
+    14 AS stock,
+    4.6 AS rating
+  UNION ALL SELECT 'Contour Bouclé Lounge Chair', 'A sculptural lounge chair wrapped in ivory bouclé over a hand-finished solid-oak frame, contoured to cradle the body in unhurried comfort.', 'Seating', 890.00, 'http://localhost:5001/assets/products/contour-boucle-lounge-chair.png', 12, 4.9
+  UNION ALL SELECT 'Linear Marble Console', 'A slender console pairing a honed Carrara marble top with a fine blackened-steel base — architectural restraint for an entryway or hall.', 'Furniture', 1250.00, 'http://localhost:5001/assets/products/linear-marble-console.png', 9, 4.8
+  UNION ALL SELECT 'Prism Travertine Floor Lamp', 'A faceted travertine plinth grounds a slim brass stem and opal-glass diffuser, casting a warm, sculptural glow across the floor.', 'Lighting', 320.00, 'http://localhost:5001/assets/products/prism-travertine-floor-lamp.png', 22, 4.7
+  UNION ALL SELECT 'Meridian Walnut Dining Table', 'A solid American black-walnut dining table with tapered legs and a hand-oiled top that seats six in quiet, grounded warmth.', 'Furniture', 1680.00, 'http://localhost:5001/assets/products/meridian-walnut-dining-table.png', 10, 4.8
+  UNION ALL SELECT 'Halo Alabaster Pendant', 'A hand-carved alabaster disc suspended from a brushed-brass canopy, glowing with the soft, veined translucence of natural stone.', 'Lighting', 540.00, 'http://localhost:5001/assets/products/halo-alabaster-pendant.png', 18, 4.8
+  UNION ALL SELECT 'Drift Linen Sofa', 'A low, generous three-seat sofa in stonewashed Belgian linen over a kiln-dried hardwood frame with feather-down cushions.', 'Seating', 2150.00, 'http://localhost:5001/assets/products/drift-linen-sofa.png', 8, 4.9
+  UNION ALL SELECT 'Celadon Stoneware Vase', 'Wheel-thrown stoneware finished in a matte celadon glaze, each vessel carrying the subtle irregularities of the maker''s hand.', 'Decor', 220.00, 'http://localhost:5001/assets/products/celadon-stoneware-vase.png', 40, 4.7
+  UNION ALL SELECT 'Nimbus Bouclé Ottoman', 'A rounded upholstered ottoman in soft ivory bouclé on a recessed oak plinth — equal parts footrest, seat and sculpture.', 'Seating', 480.00, 'http://localhost:5001/assets/products/nimbus-boucle-ottoman.png', 24, 4.6
+  UNION ALL SELECT 'Linea Oak Bookshelf', 'An open ladder bookshelf in solid white oak with cantilevered shelves that appear to float weightlessly against the wall.', 'Furniture', 760.00, 'http://localhost:5001/assets/products/linea-oak-bookshelf.png', 16, 4.6
+  UNION ALL SELECT 'Ember Travertine Coffee Table', 'A rounded coffee table carved from a single block of Roman travertine, its honed surface tracing the stone''s natural striations.', 'Furniture', 620.00, 'http://localhost:5001/assets/products/ember-travertine-coffee-table.png', 20, 4.7
+  UNION ALL SELECT 'Verde Potted Olive Tree', 'A mature potted olive in a hand-thrown terracotta vessel — a living sculpture that softens architectural lines with silver-green foliage.', 'Decor', 320.00, 'http://localhost:5001/assets/products/verde-olive-tree.png', 9, 4.8
 ) AS seed
 WHERE NOT EXISTS (SELECT 1 FROM products LIMIT 1);

@@ -1,16 +1,21 @@
+import path from 'node:path';
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env';
 import apiRoutes from './routes';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler';
-import './types/express.d';
 
 export function createApp(): Application {
   const app = express();
 
-  // Security headers (OWASP A05). Disable CSP defaults for a pure JSON API.
-  app.use(helmet());
+  // Security headers (OWASP A05). Allow static images to be embedded
+  // cross-origin (the SPA is served from a different origin than the API).
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.disable('x-powered-by');
 
   // CORS — allow a configured origin list or all origins.
@@ -23,6 +28,18 @@ export function createApp(): Application {
   // Body parsing with a sane size limit to blunt large-payload abuse.
   app.use(express.json({ limit: '100kb' }));
   app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+
+  // Static product imagery. At runtime the code executes from `dist/`, and the
+  // Dockerfile copies `src/assets` to `dist/assets`, so resolve relative to
+  // __dirname rather than the source tree.
+  app.use(
+    '/assets',
+    express.static(path.join(__dirname, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+      fallthrough: false,
+    }),
+  );
 
   app.use('/api', apiRoutes);
 
