@@ -2,19 +2,58 @@ import { api } from './client';
 import type { Product } from '@/types';
 import { MOCK_PRODUCTS } from '@/data/catalog';
 
-function unwrapList<T>(payload: unknown): T[] {
-  const root = payload as { data?: T[]; products?: T[]; items?: T[] } | T[];
+interface RawProduct {
+  id: string | number;
+  name: string;
+  description?: string;
+  price: number | string;
+  category?: string;
+  image?: string;
+  image_url?: string;
+  images?: string[];
+  rating?: number | string;
+  reviews?: number;
+  stock?: number | string;
+  featured?: boolean;
+  specs?: Record<string, string>;
+}
+
+/** Maps a backend product DTO onto the frontend Product domain type. */
+function mapProduct(raw: RawProduct): Product {
+  return {
+    id: raw.id,
+    name: raw.name,
+    description: raw.description ?? '',
+    price: Number(raw.price),
+    category: raw.category ?? 'General',
+    image: raw.image ?? raw.image_url ?? '',
+    images: raw.images,
+    rating: raw.rating != null ? Number(raw.rating) : undefined,
+    reviews: raw.reviews,
+    stock: raw.stock != null ? Number(raw.stock) : undefined,
+    featured: raw.featured,
+    specs: raw.specs,
+  };
+}
+
+function unwrapList(payload: unknown): RawProduct[] {
+  const root = payload as
+    | { data?: RawProduct[]; products?: RawProduct[]; items?: RawProduct[] }
+    | RawProduct[];
   if (Array.isArray(root)) return root;
   return root.data ?? root.products ?? root.items ?? [];
 }
 
-function unwrapOne<T>(payload: unknown): T {
-  const root = payload as { data?: T; product?: T } | T;
-  return (
-    (root as { data?: T }).data ??
-    (root as { product?: T }).product ??
-    (root as T)
-  );
+function unwrapOne(payload: unknown): RawProduct | undefined {
+  const root = payload as {
+    data?: RawProduct | { product?: RawProduct };
+    product?: RawProduct;
+  };
+  const data = root.data;
+  if (data && typeof data === 'object' && 'product' in data && data.product) {
+    return data.product;
+  }
+  return (data as RawProduct | undefined) ?? root.product;
 }
 
 export const productsApi = {
@@ -22,7 +61,7 @@ export const productsApi = {
   async list(): Promise<Product[]> {
     try {
       const { data } = await api.get('/products');
-      const products = unwrapList<Product>(data);
+      const products = unwrapList(data).map(mapProduct);
       return products.length ? products : MOCK_PRODUCTS;
     } catch {
       return MOCK_PRODUCTS;
@@ -32,8 +71,8 @@ export const productsApi = {
   async get(id: string | number): Promise<Product | undefined> {
     try {
       const { data } = await api.get(`/products/${id}`);
-      const product = unwrapOne<Product>(data);
-      if (product && (product as Product).id != null) return product;
+      const raw = unwrapOne(data);
+      if (raw && raw.id != null) return mapProduct(raw);
       throw new Error('empty');
     } catch {
       return MOCK_PRODUCTS.find((p) => String(p.id) === String(id));
