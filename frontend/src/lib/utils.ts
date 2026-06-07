@@ -28,6 +28,19 @@ export function formatDate(value: string | number | Date): string {
   return dateFormatter.format(date);
 }
 
+/**
+ * Resolves a product's image source across every payload shape we may receive:
+ * the canonical mapped `image`, the raw MySQL `image_url`, or a camelCase
+ * `imageUrl` from adapted mock objects. Returns an empty string when none exist
+ * so the <img> degrades to its placeholder box rather than throwing.
+ */
+export function productImage(
+  product: { image?: string; image_url?: string; imageUrl?: string } | null | undefined,
+): string {
+  if (!product) return '';
+  return product.image_url ?? product.image ?? product.imageUrl ?? '';
+}
+
 /** Returns initials from a full name, e.g. "Ada Lovelace" -> "AL". */
 export function initials(name: string): string {
   return name

@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/Button';
 import { productsApi } from '@/api/products';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/ui/Toast';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, productImage } from '@/lib/utils';
 import type { Product } from '@/types';
 
 export function ProductDetailPage() {
@@ -93,7 +93,7 @@ export function ProductDetailPage() {
   const gallery =
     product.images && product.images.length > 0
       ? product.images
-      : [product.image];
+      : [productImage(product)];
 
   return (
     <PageTransition>

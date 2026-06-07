@@ -3,6 +3,13 @@
 -- This script is idempotent and safe to run on every container start.
 -- =============================================================================
 
+-- Force the import session to UTF-8 (utf8mb4). The MySQL docker-entrypoint
+-- imports this file with a client connection that defaults to latin1, which
+-- silently double-encodes multibyte characters (the accented "e" in product
+-- names would otherwise be mangled). Pinning the session charset here
+-- guarantees accented seed data is stored correctly on a fresh volume.
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 CREATE DATABASE IF NOT EXISTS aura
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -115,8 +122,9 @@ DELETE FROM products
 
 -- -----------------------------------------------------------------------------
 -- Seed: premium Furniture & Living collection (only when the table is empty).
--- Image URLs reconcile 1:1 with locally hosted assets served by express.static
--- from /assets/products/<file>.png (see backend/src/assets/products).
+-- Image URLs point to high-fidelity, hosted Unsplash CDN photography
+-- (images.unsplash.com) so the storefront renders premium imagery with no local
+-- asset hosting. Keep these in lock-step with frontend/src/data/catalog.ts.
 -- -----------------------------------------------------------------------------
 INSERT INTO products (name, description, category, price, image_url, stock, rating)
 SELECT * FROM (
@@ -125,19 +133,19 @@ SELECT * FROM (
     'Stacked solid-oak rings form a softly tactile column, crowned by a single seamless disc of hand-oiled timber. A quiet sculptural anchor for the sofa-side.' AS description,
     'Furniture' AS category,
     460.00 AS price,
-    'http://localhost:5001/assets/products/strata-oak-side-table.png' AS image_url,
+    'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=600&q=80' AS image_url,
     14 AS stock,
     4.6 AS rating
-  UNION ALL SELECT 'Contour Bouclé Lounge Chair', 'A sculptural lounge chair wrapped in ivory bouclé over a hand-finished solid-oak frame, contoured to cradle the body in unhurried comfort.', 'Seating', 890.00, 'http://localhost:5001/assets/products/contour-boucle-lounge-chair.png', 12, 4.9
-  UNION ALL SELECT 'Linear Marble Console', 'A slender console pairing a honed Carrara marble top with a fine blackened-steel base — architectural restraint for an entryway or hall.', 'Furniture', 1250.00, 'http://localhost:5001/assets/products/linear-marble-console.png', 9, 4.8
-  UNION ALL SELECT 'Prism Travertine Floor Lamp', 'A faceted travertine plinth grounds a slim brass stem and opal-glass diffuser, casting a warm, sculptural glow across the floor.', 'Lighting', 320.00, 'http://localhost:5001/assets/products/prism-travertine-floor-lamp.png', 22, 4.7
-  UNION ALL SELECT 'Meridian Walnut Dining Table', 'A solid American black-walnut dining table with tapered legs and a hand-oiled top that seats six in quiet, grounded warmth.', 'Furniture', 1680.00, 'http://localhost:5001/assets/products/meridian-walnut-dining-table.png', 10, 4.8
-  UNION ALL SELECT 'Halo Alabaster Pendant', 'A hand-carved alabaster disc suspended from a brushed-brass canopy, glowing with the soft, veined translucence of natural stone.', 'Lighting', 540.00, 'http://localhost:5001/assets/products/halo-alabaster-pendant.png', 18, 4.8
-  UNION ALL SELECT 'Drift Linen Sofa', 'A low, generous three-seat sofa in stonewashed Belgian linen over a kiln-dried hardwood frame with feather-down cushions.', 'Seating', 2150.00, 'http://localhost:5001/assets/products/drift-linen-sofa.png', 8, 4.9
-  UNION ALL SELECT 'Celadon Stoneware Vase', 'Wheel-thrown stoneware finished in a matte celadon glaze, each vessel carrying the subtle irregularities of the maker''s hand.', 'Decor', 220.00, 'http://localhost:5001/assets/products/celadon-stoneware-vase.png', 40, 4.7
-  UNION ALL SELECT 'Nimbus Bouclé Ottoman', 'A rounded upholstered ottoman in soft ivory bouclé on a recessed oak plinth — equal parts footrest, seat and sculpture.', 'Seating', 480.00, 'http://localhost:5001/assets/products/nimbus-boucle-ottoman.png', 24, 4.6
-  UNION ALL SELECT 'Linea Oak Bookshelf', 'An open ladder bookshelf in solid white oak with cantilevered shelves that appear to float weightlessly against the wall.', 'Furniture', 760.00, 'http://localhost:5001/assets/products/linea-oak-bookshelf.png', 16, 4.6
-  UNION ALL SELECT 'Ember Travertine Coffee Table', 'A rounded coffee table carved from a single block of Roman travertine, its honed surface tracing the stone''s natural striations.', 'Furniture', 620.00, 'http://localhost:5001/assets/products/ember-travertine-coffee-table.png', 20, 4.7
-  UNION ALL SELECT 'Verde Potted Olive Tree', 'A mature potted olive in a hand-thrown terracotta vessel — a living sculpture that softens architectural lines with silver-green foliage.', 'Decor', 320.00, 'http://localhost:5001/assets/products/verde-olive-tree.png', 9, 4.8
+  UNION ALL SELECT 'Contour Bouclé Lounge Chair', 'A sculptural lounge chair wrapped in ivory bouclé over a hand-finished solid-oak frame, contoured to cradle the body in unhurried comfort.', 'Seating', 890.00, 'https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&w=600&q=80', 12, 4.9
+  UNION ALL SELECT 'Linear Marble Console', 'A slender console pairing a honed Carrara marble top with a fine blackened-steel base — architectural restraint for an entryway or hall.', 'Furniture', 1250.00, 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=600&q=80', 9, 4.8
+  UNION ALL SELECT 'Prism Travertine Floor Lamp', 'A faceted travertine plinth grounds a slim brass stem and opal-glass diffuser, casting a warm, sculptural glow across the floor.', 'Lighting', 320.00, 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80', 22, 4.7
+  UNION ALL SELECT 'Meridian Walnut Dining Table', 'A solid American black-walnut dining table with tapered legs and a hand-oiled top that seats six in quiet, grounded warmth.', 'Furniture', 1680.00, 'https://images.unsplash.com/photo-1687949289431-7dbbef0f872f?auto=format&fit=crop&w=600&q=80', 10, 4.8
+  UNION ALL SELECT 'Halo Alabaster Pendant', 'A hand-carved alabaster disc suspended from a brushed-brass canopy, glowing with the soft, veined translucence of natural stone.', 'Lighting', 540.00, 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=600&q=80', 18, 4.8
+  UNION ALL SELECT 'Drift Linen Sofa', 'A low, generous three-seat sofa in stonewashed Belgian linen over a kiln-dried hardwood frame with feather-down cushions.', 'Seating', 2150.00, 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80', 8, 4.9
+  UNION ALL SELECT 'Celadon Stoneware Vase', 'Wheel-thrown stoneware finished in a matte celadon glaze, each vessel carrying the subtle irregularities of the maker''s hand.', 'Decor', 220.00, 'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=600&q=80', 40, 4.7
+  UNION ALL SELECT 'Nimbus Bouclé Ottoman', 'A rounded upholstered ottoman in soft ivory bouclé on a recessed oak plinth — equal parts footrest, seat and sculpture.', 'Seating', 480.00, 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80', 24, 4.6
+  UNION ALL SELECT 'Linea Oak Bookshelf', 'An open ladder bookshelf in solid white oak with cantilevered shelves that appear to float weightlessly against the wall.', 'Furniture', 760.00, 'https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=600&q=80', 16, 4.6
+  UNION ALL SELECT 'Ember Travertine Coffee Table', 'A rounded coffee table carved from a single block of Roman travertine, its honed surface tracing the stone''s natural striations.', 'Furniture', 620.00, 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&w=600&q=80', 20, 4.7
+  UNION ALL SELECT 'Verde Potted Olive Tree', 'A mature potted olive in a hand-thrown terracotta vessel — a living sculpture that softens architectural lines with silver-green foliage.', 'Decor', 320.00, 'https://images.unsplash.com/photo-1545241047-6083a3684587?auto=format&fit=crop&w=600&q=80', 9, 4.8
 ) AS seed
 WHERE NOT EXISTS (SELECT 1 FROM products LIMIT 1);

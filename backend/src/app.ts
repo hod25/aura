@@ -1,4 +1,3 @@
-import path from 'node:path';
 import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -28,18 +27,6 @@ export function createApp(): Application {
   // Body parsing with a sane size limit to blunt large-payload abuse.
   app.use(express.json({ limit: '100kb' }));
   app.use(express.urlencoded({ extended: true, limit: '100kb' }));
-
-  // Static product imagery. At runtime the code executes from `dist/`, and the
-  // Dockerfile copies `src/assets` to `dist/assets`, so resolve relative to
-  // __dirname rather than the source tree.
-  app.use(
-    '/assets',
-    express.static(path.join(__dirname, 'assets'), {
-      maxAge: '1y',
-      immutable: true,
-      fallthrough: false,
-    }),
-  );
 
   app.use('/api', apiRoutes);
 

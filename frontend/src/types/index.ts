@@ -20,7 +20,11 @@ export interface Product {
   description: string;
   price: number;
   category: string;
+  /** Canonical, mapper-normalized image source. */
   image: string;
+  /** Raw API shapes retained for resilient resolution via `productImage()`. */
+  image_url?: string;
+  imageUrl?: string;
   images?: string[];
   rating?: number;
   reviews?: number;

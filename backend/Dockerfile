@@ -36,8 +36,6 @@ COPY --chown=node:node --from=deps /app/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/dist ./dist
 # init.sql is read at runtime by the app, so ship it alongside the build.
 COPY --chown=node:node --from=build /app/src/config/init.sql ./dist/config/init.sql
-# Static product imagery served by express.static at /assets.
-COPY --chown=node:node --from=build /app/src/assets ./dist/assets
 
 USER node
 EXPOSE 5001

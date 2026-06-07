@@ -15,7 +15,7 @@ export interface ProductGridProps {
 }
 
 const defaultGrid =
-  'grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3';
+  'grid auto-rows-fr grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3';
 
 /**
  * Animated, responsive product grid with built-in shimmering skeleton state.

@@ -17,6 +17,9 @@ export const pool: Pool = mysql.createPool({
   connectionLimit: env.db.connectionLimit,
   queueLimit: 0,
   namedPlaceholders: false,
+  // Pin the connection charset to utf8mb4 so accented text (e.g. "Bouclé")
+  // round-trips without latin1 double-encoding on both seed and read paths.
+  charset: 'utf8mb4',
   // Keep DECIMAL/BIGINT readable as JS numbers for our value ranges.
   decimalNumbers: true,
 });

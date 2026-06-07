@@ -5,7 +5,7 @@ import type { Product } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { useToast } from '@/components/ui/Toast';
 import { fadeUpItem } from '@/lib/motion';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, productImage } from '@/lib/utils';
 
 export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
@@ -19,15 +19,15 @@ export function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <motion.div variants={fadeUpItem}>
+    <motion.div variants={fadeUpItem} className="h-full">
       <Link
         to={`/product/${product.id}`}
-        className="group block overflow-hidden rounded-3xl border border-ink-200/60 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glass"
+        className="group flex h-full flex-col overflow-hidden rounded-3xl border border-ink-200/60 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-glass"
       >
         {/* Image */}
         <div className="relative aspect-[4/5] overflow-hidden bg-ink-100">
           <motion.img
-            src={product.image}
+            src={productImage(product)}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
@@ -57,7 +57,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         {/* Body */}
-        <div className="p-5">
+        <div className="flex flex-1 flex-col p-5">
           <div className="mb-1 flex items-center justify-between">
             <span className="eyebrow">{product.category}</span>
             {product.rating != null && (
@@ -67,10 +67,10 @@ export function ProductCard({ product }: { product: Product }) {
               </span>
             )}
           </div>
-          <h3 className="font-display text-lg font-semibold leading-snug text-ink-900 transition-colors group-hover:text-emerald-700">
+          <h3 className="line-clamp-2 min-h-[3rem] font-display text-lg font-semibold leading-snug text-ink-900 transition-colors group-hover:text-emerald-700">
             {product.name}
           </h3>
-          <p className="mt-3 text-base font-semibold text-ink-900">
+          <p className="mt-auto pt-3 text-base font-semibold text-ink-900">
             {formatCurrency(product.price)}
           </p>
         </div>

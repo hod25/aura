@@ -1,4 +1,4 @@
-import { useEffect, useState, type ImgHTMLAttributes } from 'react';
+import { useEffect, useRef, useState, type ImgHTMLAttributes } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -36,6 +36,7 @@ export function MotionImage({
   ...rest
 }: MotionImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // `isMounted` flips to true only after the client-side React hydration is
   // 100% complete. Until then the <img> carries no `src`, so the browser's
@@ -47,11 +48,16 @@ export function MotionImage({
     setIsMounted(true);
   }, []);
 
-  // Cached assets may already be decoded before React attaches `onLoad`;
-  // reconcile on mount via the ref callback to avoid a stuck placeholder.
-  const reconcile = (node: HTMLImageElement | null) => {
-    if (node?.complete && node.naturalWidth > 0) setLoaded(true);
-  };
+  // Browser image cache trap: when React assigns `src` after mount, a fully
+  // cached asset is decoded synchronously and its `onLoad` event never fires,
+  // leaving the image stuck at opacity 0. After `src` is applied we inspect the
+  // element's native `.complete` flag and flip `loaded` instantly so cached
+  // (pre-rendered) imagery — e.g. the hero — never disappears.
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setLoaded(true);
+    }
+  }, [isMounted, src]);
 
   // `fetchPriority` is applied through a loosely-typed object so the component
   // builds regardless of the installed @types/react version.
@@ -72,7 +78,7 @@ export function MotionImage({
       />
 
       <motion.img
-        ref={reconcile}
+        ref={imgRef}
         src={isMounted ? src : undefined}
         alt={alt}
         onLoad={() => setLoaded(true)}
