@@ -58,6 +58,20 @@ api.interceptors.response.use(
   },
 );
 
+/**
+ * Detects a network-level failure (server unreachable / connection refused /
+ * timeout) as opposed to a genuine HTTP error response. Used by the API layer
+ * to transparently switch into an offline "Demo Mode" when the backend on
+ * port 5001 is not running.
+ */
+export function isOfflineError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) return false;
+  // A populated `response` means the server replied (4xx/5xx) — not offline.
+  if (error.response) return false;
+  // No response + not a deliberate client cancellation => treat as offline.
+  return error.code !== 'ERR_CANCELED';
+}
+
 /** Extracts a human-friendly message from any thrown API error. */
 export function getApiErrorMessage(error: unknown, fallback = 'Something went wrong.'): string {
   if (axios.isAxiosError(error)) {

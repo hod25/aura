@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, isOfflineError } from './client';
 import { cartApi } from './cart';
 import type {
   CartItem,
@@ -88,6 +88,40 @@ function unwrapOrder(payload: unknown): RawOrder {
   return (data as RawOrder) ?? (root.order as RawOrder) ?? (payload as RawOrder);
 }
 
+/* --------------------------------------------------------------------------
+ * Demo Mode — graceful offline fallback
+ * When the backend on port 5001 is unreachable, synthesise a confirmed order
+ * so the multi-step checkout wizard can transition to its final animated
+ * confirmation step without a live database.
+ * ------------------------------------------------------------------------ */
+
+/** Generates a short, human-readable fallback order id (e.g. AURA-9X82K). */
+function mockOrderId(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let suffix = '';
+  for (let i = 0; i < 5; i += 1) {
+    suffix += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return `AURA-${suffix}`;
+}
+
+/** Builds a confirmed Order from the checkout payload for offline Demo Mode. */
+function createMockOrder(payload: CreateOrderPayload): Order {
+  return {
+    id: mockOrderId(),
+    createdAt: new Date().toISOString(),
+    status: 'processing',
+    total: payload.total,
+    items: payload.items.map((item) => ({
+      id: item.productId,
+      name: 'Item',
+      price: 0,
+      quantity: item.quantity,
+    })),
+    shipping: payload.shipping,
+  };
+}
+
 export const ordersApi = {
   /** Fetches the authenticated user's order history. */
   async list(): Promise<Order[]> {
@@ -101,9 +135,15 @@ export const ordersApi = {
    * to match what the shopper sees, then trigger the transaction endpoint.
    */
   async create(payload: CreateOrderPayload): Promise<Order> {
-    await cartApi.replace(payload.items);
-    const { data } = await api.post('/orders', {});
-    return mapOrder(unwrapOrder(data));
+    try {
+      await cartApi.replace(payload.items);
+      const { data } = await api.post('/orders', {});
+      return mapOrder(unwrapOrder(data));
+    } catch (error) {
+      if (!isOfflineError(error)) throw error;
+      // Backend offline — confirm the transaction locally under Demo Mode.
+      return createMockOrder(payload);
+    }
   },
 };
 

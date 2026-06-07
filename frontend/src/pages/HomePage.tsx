@@ -4,7 +4,9 @@ import { ArrowRight, Sparkles, Truck, ShieldCheck, Leaf } from 'lucide-react';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { ProductGrid } from '@/components/features/product';
 import { Button } from '@/components/ui/Button';
+import { MotionImage } from '@/components/ui/MotionImage';
 import { useProducts } from '@/hooks/useProducts';
+import heroAtelier from '@/assets/hero-atelier.svg';
 
 const perks = [
   { icon: Truck, title: 'White-glove delivery', desc: 'Carbon-neutral, fully insured.' },
@@ -22,11 +24,8 @@ export function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <img
-            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1800&q=80"
-            alt=""
-            className="h-full w-full object-cover"
-          />
+          {/* Local asset served from Nginx /assets (port 3000) — never the API. */}
+          <MotionImage src={heroAtelier} alt="" priority />
           <div className="absolute inset-0 bg-gradient-to-r from-ink-50 via-ink-50/85 to-ink-50/30" />
         </div>
 
@@ -35,7 +34,7 @@ export function HomePage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl"
+            className="max-w-2xl rounded-[2rem] border border-white/30 bg-white/10 p-8 shadow-glass backdrop-blur-md sm:p-10"
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-ink-600 backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-gold-500" />
@@ -46,7 +45,7 @@ export function HomePage() {
               <span className="gradient-gold-text">quiet beauty</span> for
               considered living.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-500">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
               A curated marketplace of furniture, lighting and decor — each
               piece chosen for its craft, material honesty, and the way it ages
               with grace.
