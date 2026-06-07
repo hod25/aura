@@ -1,0 +1,84 @@
+services:
+  # ---------------------------------------------------------------------------
+  # MySQL 8.0 database. The schema + seed script runs automatically on the very
+  # first boot (empty data volume) via the docker-entrypoint-initdb.d hook.
+  # ---------------------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: aura-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${DB_NAME:-aura}
+      MYSQL_USER: ${DB_USER:-aura}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-aura_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - aura_db_data:/var/lib/mysql
+      - ./src/config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - aura_net
+
+  # ---------------------------------------------------------------------------
+  # Node.js / TypeScript backend API. Waits for the database to be healthy.
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aura-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      JWT_SECRET: ${JWT_SECRET:-change_me_to_a_long_random_secret_string}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-aura}
+      DB_PASSWORD: ${DB_PASSWORD:-aura_password}
+      DB_NAME: ${DB_NAME:-aura}
+      DB_CONNECTION_LIMIT: 10
+    ports:
+      - "5001:5001"
+    networks:
+      - aura_net
+
+  # ---------------------------------------------------------------------------
+  # React frontend served by Nginx. VITE_API_URL is baked in at build time, so
+  # it points at the backend as the browser sees it (host port 5001).
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5001/api}
+    container_name: aura-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - aura_net
+
+volumes:
+  aura_db_data:
+    driver: local
+
+networks:
+  aura_net:
+    driver: bridge
+
