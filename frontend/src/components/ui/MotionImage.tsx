@@ -1,18 +1,16 @@
-import { useEffect, useRef, useState, type ImgHTMLAttributes } from 'react';
+import { forwardRef, type ImgHTMLAttributes } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export interface MotionImageProps
   extends Omit<
     ImgHTMLAttributes<HTMLImageElement>,
-    'onLoad' | 'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart'
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart'
   > {
   src: string;
   alt?: string;
   /** Tailwind classes applied to the <img> element. */
   className?: string;
-  /** Tailwind classes for the placeholder layer shown until the asset loads. */
-  placeholderClassName?: string;
   /**
    * When true, hints the browser to fetch this asset eagerly with high
    * priority — use for above-the-fold hero imagery to cut LCP.
@@ -21,77 +19,40 @@ export interface MotionImageProps
 }
 
 /**
- * Progressive image with a shimmering placeholder and a hardware-accelerated
- * 600ms opacity fade-in once the asset finishes decoding.
+ * Lightweight, state-free image wrapper around `<motion.img>`.
  *
- * The placeholder occupies the same box as the image, so layout never shifts
- * (zero CLS) while the asset streams in — even under heavy network throttling.
+ * This is a pure client-side Vite SPA — there is no hydration boundary to guard
+ * against, so the browser's native HTML pre-loader paints the asset on the very
+ * first frame. We simply layer a hardware-accelerated opacity fade on top,
+ * yielding an atomic single-pass render with zero double-render flash on
+ * refresh. Props are spread straight onto the element so callers can pass
+ * classes or custom behaviours freely.
  */
-export function MotionImage({
-  src,
-  alt = '',
-  className,
-  placeholderClassName,
-  priority = false,
-  ...rest
-}: MotionImageProps) {
-  const [loaded, setLoaded] = useState(false);
-  const imgRef = useRef<HTMLImageElement>(null);
+export const MotionImage = forwardRef<HTMLImageElement, MotionImageProps>(
+  ({ src, alt = '', className, priority = false, ...props }, ref) => {
+    // `fetchPriority` is applied through a loosely-typed object so the component
+    // builds regardless of the installed @types/react version.
+    const priorityAttrs = priority
+      ? ({ fetchPriority: 'high', loading: 'eager' } as Record<string, string>)
+      : ({ loading: 'lazy' } as Record<string, string>);
 
-  // `isMounted` flips to true only after the client-side React hydration is
-  // 100% complete. Until then the <img> carries no `src`, so the browser's
-  // native HTML pre-loader cannot paint the asset before Framer Motion's
-  // zero-opacity baseline is in place — this eliminates the refresh FOUC.
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Browser image cache trap: when React assigns `src` after mount, a fully
-  // cached asset is decoded synchronously and its `onLoad` event never fires,
-  // leaving the image stuck at opacity 0. After `src` is applied we inspect the
-  // element's native `.complete` flag and flip `loaded` instantly so cached
-  // (pre-rendered) imagery — e.g. the hero — never disappears.
-  useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
-      setLoaded(true);
-    }
-  }, [isMounted, src]);
-
-  // `fetchPriority` is applied through a loosely-typed object so the component
-  // builds regardless of the installed @types/react version.
-  const priorityAttrs = priority
-    ? ({ fetchPriority: 'high', loading: 'eager' } as Record<string, string>)
-    : ({ loading: 'lazy' } as Record<string, string>);
-
-  return (
-    <span className="absolute inset-0 block overflow-hidden">
-      {/* Blurred/shimmer placeholder — reserves the box, prevents CLS. */}
-      <span
-        aria-hidden
-        className={cn(
-          'absolute inset-0 bg-ink-100 transition-opacity duration-700 ease-out',
-          loaded ? 'opacity-0' : 'skeleton opacity-100',
-          placeholderClassName,
-        )}
-      />
-
+    return (
       <motion.img
-        ref={imgRef}
-        src={isMounted ? src : undefined}
+        ref={ref}
+        src={src}
         alt={alt}
-        onLoad={() => setLoaded(true)}
         decoding="async"
         draggable={false}
-        initial={false}
-        animate={{ opacity: isMounted && loaded ? 1 : 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         style={{ willChange: 'opacity' }}
         className={cn('h-full w-full object-cover', className)}
         {...priorityAttrs}
-        {...rest}
+        {...props}
       />
-    </span>
-  );
-}
+    );
+  },
+);
+
+MotionImage.displayName = 'MotionImage';
