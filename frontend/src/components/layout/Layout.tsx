@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
-import { CartDrawer } from '@/components/CartDrawer';
+import { CartDrawer } from '@/components/features/cart';
 
 /** Global shell: fixed navbar, page content, footer and the persistent cart. */
 export function Layout({ children }: { children: ReactNode }) {

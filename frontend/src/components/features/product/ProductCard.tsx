@@ -78,16 +78,3 @@ export function ProductCard({ product }: { product: Product }) {
     </motion.div>
   );
 }
-
-export function ProductCardSkeleton() {
-  return (
-    <div className="overflow-hidden rounded-3xl border border-ink-200/60 bg-white">
-      <div className="skeleton aspect-[4/5]" />
-      <div className="space-y-3 p-5">
-        <div className="skeleton h-3 w-1/3 rounded-full" />
-        <div className="skeleton h-5 w-3/4 rounded-full" />
-        <div className="skeleton h-4 w-1/4 rounded-full" />
-      </div>
-    </div>
-  );
-}

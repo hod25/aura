@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { PageTransition } from '@/components/layout/PageTransition';
-import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
+import { ProductGrid } from '@/components/features/product';
 import { Button } from '@/components/ui/Button';
 import { useProducts } from '@/hooks/useProducts';
-import { staggerContainer } from '@/lib/motion';
 import { cn, formatCurrency } from '@/lib/utils';
 
 type SortKey = 'featured' | 'price-asc' | 'price-desc' | 'name';
@@ -45,21 +44,21 @@ export function CatalogPage() {
     if (fromUrl) setActiveCategories([fromUrl]);
   }, [searchParams]);
 
-  const toggleCategory = (category: string) => {
+  const toggleCategory = useCallback((category: string) => {
     setActiveCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
         : [...prev, category],
     );
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setActiveCategories([]);
     setMaxPrice(priceCeiling);
     setQuery('');
     setSort('featured');
     if (searchParams.get('category')) setSearchParams({}, { replace: true });
-  };
+  }, [priceCeiling, searchParams, setSearchParams]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -95,7 +94,8 @@ export function CatalogPage() {
     query.length > 0 ||
     (priceCeiling > 0 && maxPrice < priceCeiling);
 
-  const FiltersPanel = (
+  const FiltersPanel = useMemo(
+    () => (
     <div className="space-y-8">
       <div>
         <h3 className="eyebrow mb-4">Category</h3>
@@ -154,6 +154,17 @@ export function CatalogPage() {
         </Button>
       )}
     </div>
+    ),
+    [
+      categories,
+      activeCategories,
+      products,
+      priceCeiling,
+      maxPrice,
+      hasActiveFilters,
+      toggleCategory,
+      clearFilters,
+    ],
   );
 
   return (
@@ -226,13 +237,7 @@ export function CatalogPage() {
 
           {/* Grid */}
           <div>
-            {isLoading ? (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <ProductCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : filtered.length === 0 ? (
+            {!isLoading && filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-ink-200 py-24 text-center">
                 <p className="font-display text-2xl font-medium text-ink-900">
                   No pieces found
@@ -246,17 +251,11 @@ export function CatalogPage() {
                 </Button>
               </div>
             ) : (
-              <motion.div
-                key={`${sort}-${activeCategories.join()}-${query}`}
-                variants={staggerContainer}
-                initial="hidden"
-                animate="visible"
-                className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3"
-              >
-                {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </motion.div>
+              <ProductGrid
+                products={filtered}
+                isLoading={isLoading}
+                animationKey={`${sort}-${activeCategories.join()}-${query}`}
+              />
             )}
           </div>
         </div>

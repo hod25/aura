@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader2, Mail, Package, ShoppingBag, User as UserIcon } from 'lucide-react';
+import { Mail, Package, ShoppingBag, User as UserIcon } from 'lucide-react';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { Button } from '@/components/ui/Button';
+import { OrderHistorySkeleton } from '@/components/features/account';
 import { useAuth } from '@/context/AuthContext';
 import { ordersApi } from '@/api/orders';
 import { cn, formatCurrency, formatDate, initials } from '@/lib/utils';
@@ -111,9 +112,7 @@ export function AccountPage() {
           </h2>
 
           {isLoading ? (
-            <div className="flex items-center justify-center rounded-3xl border border-ink-200/60 bg-white py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-ink-400" />
-            </div>
+            <OrderHistorySkeleton />
           ) : orders.length === 0 ? (
             <div className="mt-4 flex flex-col items-center justify-center rounded-3xl border border-dashed border-ink-200 bg-white py-20 text-center">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink-50">

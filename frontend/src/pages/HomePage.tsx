@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles, Truck, ShieldCheck, Leaf } from 'lucide-react';
 import { PageTransition } from '@/components/layout/PageTransition';
-import { ProductCard, ProductCardSkeleton } from '@/components/ProductCard';
+import { ProductGrid } from '@/components/features/product';
 import { Button } from '@/components/ui/Button';
 import { useProducts } from '@/hooks/useProducts';
-import { staggerContainer } from '@/lib/motion';
 
 const perks = [
   { icon: Truck, title: 'White-glove delivery', desc: 'Carbon-neutral, fully insured.' },
@@ -104,20 +103,12 @@ export function HomePage() {
           </Link>
         </div>
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))
-            : showcase.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-        </motion.div>
+        <ProductGrid
+          products={showcase}
+          isLoading={isLoading}
+          skeletonCount={4}
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4"
+        />
       </section>
 
       {/* CTA band */}
