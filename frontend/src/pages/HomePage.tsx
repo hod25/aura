@@ -14,6 +14,54 @@ const perks = [
   { icon: Leaf, title: 'Responsibly made', desc: 'Honest materials, fair makers.' },
 ];
 
+function HomeHero() {
+  return (
+    <section className="relative isolate overflow-hidden bg-ink-50">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1fr)] lg:px-8 lg:py-28">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="max-w-2xl rounded-[2rem] border border-white/60 bg-white/65 p-8 shadow-glass backdrop-blur-md sm:p-10"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-ink-600 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5 text-gold-500" />
+            New · The Atelier Collection
+          </span>
+          <h1 className="mt-6 font-display text-5xl font-medium leading-[1.05] text-ink-900 sm:text-6xl lg:text-7xl">
+            Objects of{' '}
+            <span className="gradient-gold-text">quiet beauty</span> for
+            considered living.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
+            A curated marketplace of furniture, lighting and decor — each piece
+            chosen for its craft, material honesty, and the way it ages with
+            grace.
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <Link to="/catalog">
+              <Button size="lg" variant="primary">
+                Explore the collection
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="lg" variant="outline">
+                Create an account
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+
+        <div className="relative min-h-[22rem] overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-glass sm:min-h-[28rem] lg:min-h-[34rem]">
+          <MotionImage src={heroAtelier} alt="" priority />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900/20 via-transparent to-white/10" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function HomePage() {
   const { products, isLoading } = useProducts();
   const featured = products.filter((p) => p.featured).slice(0, 4);
@@ -21,51 +69,7 @@ export function HomePage() {
 
   return (
     <PageTransition>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          {/* Local asset served from Nginx /assets (port 3000) — never the API. */}
-          <MotionImage src={heroAtelier} alt="" priority />
-          <div className="absolute inset-0 bg-gradient-to-r from-ink-50 via-ink-50/85 to-ink-50/30" />
-        </div>
-
-        <div className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-36">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl rounded-[2rem] border border-white/30 bg-white/10 p-8 shadow-glass backdrop-blur-md sm:p-10"
-          >
-            <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-ink-600 backdrop-blur">
-              <Sparkles className="h-3.5 w-3.5 text-gold-500" />
-              New · The Atelier Collection
-            </span>
-            <h1 className="mt-6 font-display text-5xl font-medium leading-[1.05] text-ink-900 sm:text-6xl lg:text-7xl">
-              Objects of{' '}
-              <span className="gradient-gold-text">quiet beauty</span> for
-              considered living.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
-              A curated marketplace of furniture, lighting and decor — each
-              piece chosen for its craft, material honesty, and the way it ages
-              with grace.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center gap-4">
-              <Link to="/catalog">
-                <Button size="lg" variant="primary">
-                  Explore the collection
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/signup">
-                <Button size="lg" variant="outline">
-                  Create an account
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <HomeHero />
 
       {/* Perks */}
       <section className="border-y border-ink-200/70 bg-white">
