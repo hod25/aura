@@ -53,9 +53,13 @@ function HomeHero() {
           </div>
         </motion.div>
 
-        <div className="relative min-h-[22rem] overflow-hidden rounded-[2rem] border border-white/60 bg-white shadow-glass sm:min-h-[28rem] lg:min-h-[34rem]">
-          <MotionImage src={heroAtelier} alt="" priority />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-900/20 via-transparent to-white/10" />
+        <div className="relative flex bg-transparent lg:justify-end">
+          <MotionImage
+            src={heroAtelier}
+            alt=""
+            priority
+            className="h-auto w-full max-w-[42rem] object-contain"
+          />
         </div>
       </div>
     </section>
