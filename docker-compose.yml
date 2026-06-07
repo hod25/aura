@@ -16,7 +16,7 @@ services:
       - "3306:3306"
     volumes:
       - aura_db_data:/var/lib/mysql
-      - ./src/config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./backend/src/config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}"]
       interval: 10s
@@ -31,7 +31,7 @@ services:
   # ---------------------------------------------------------------------------
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: aura-backend
     restart: unless-stopped

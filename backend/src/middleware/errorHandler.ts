@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
 import { env } from '../config/env';
+import { logger } from '../utils/logger';
 
 /** 404 handler for unmatched routes. */
 export function notFoundHandler(req: Request, _res: Response, next: NextFunction): void {
@@ -32,8 +33,7 @@ export function errorHandler(
 
   // Surface unexpected (non-operational) errors to the server logs.
   if (statusCode >= 500) {
-    // eslint-disable-next-line no-console
-    console.error('[error]', err);
+    logger.error('unhandled request error', err);
   }
 
   const body: Record<string, unknown> = {
