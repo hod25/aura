@@ -4,9 +4,7 @@ import { ArrowRight, Sparkles, Truck, ShieldCheck, Leaf } from 'lucide-react';
 import { PageTransition } from '@/components/layout/PageTransition';
 import { ProductGrid } from '@/components/features/product';
 import { Button } from '@/components/ui/Button';
-import { MotionImage } from '@/components/ui/MotionImage';
 import { useProducts } from '@/hooks/useProducts';
-import heroAtelier from '@/assets/hero-atelier.svg';
 
 const perks = [
   { icon: Truck, title: 'White-glove delivery', desc: 'Carbon-neutral, fully insured.' },
@@ -17,51 +15,40 @@ const perks = [
 function HomeHero() {
   return (
     <section className="relative isolate overflow-hidden bg-ink-50">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,1fr)] lg:px-8 lg:py-28">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-2xl rounded-[2rem] border border-white/60 bg-white/65 p-8 shadow-glass backdrop-blur-md sm:p-10"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-ink-600 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5 text-gold-500" />
-            New · The Atelier Collection
-          </span>
-          <h1 className="mt-6 font-display text-5xl font-medium leading-[1.05] text-ink-900 sm:text-6xl lg:text-7xl">
-            Objects of{' '}
-            <span className="gradient-gold-text">quiet beauty</span> for
-            considered living.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-600">
-            A curated marketplace of furniture, lighting and decor — each piece
-            chosen for its craft, material honesty, and the way it ages with
-            grace.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link to="/catalog">
-              <Button size="lg" variant="primary">
-                Explore the collection
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="lg" variant="outline">
-                Create an account
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-
-        <div className="relative flex bg-transparent lg:justify-end">
-          <MotionImage
-            src={heroAtelier}
-            alt=""
-            priority
-            className="h-auto w-full max-w-[42rem] object-contain"
-          />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto flex max-w-3xl flex-col items-center px-4 py-28 text-center sm:px-6 lg:py-36"
+      >
+        <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-ink-600 backdrop-blur">
+          <Sparkles className="h-3.5 w-3.5 text-gold-500" />
+          New · The Atelier Collection
+        </span>
+        <h1 className="mt-8 font-display text-5xl font-medium leading-[1.05] text-ink-900 sm:text-6xl lg:text-7xl">
+          Objects of{' '}
+          <span className="gradient-gold-text">quiet beauty</span> for
+          considered living.
+        </h1>
+        <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-600">
+          A curated marketplace of furniture, lighting and decor — each piece
+          chosen for its craft, material honesty, and the way it ages with
+          grace.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link to="/catalog">
+            <Button size="lg" variant="primary">
+              Explore the collection
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link to="/signup">
+            <Button size="lg" variant="outline">
+              Create an account
+            </Button>
+          </Link>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
