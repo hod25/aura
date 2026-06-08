@@ -10,7 +10,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { renderWithProviders } from './test-utils';
 import { Navbar } from '@/components/layout/Navbar';
 import { ProductCard } from '@/components/features/product';
-import { MOCK_PRODUCTS } from '@/data/catalog';
+import { MOCK_PRODUCTS } from '../data/catalog';
 import type { CartItem } from '@/types';
 
 vi.mock('framer-motion', () => import('./mocks/framer-motion'));

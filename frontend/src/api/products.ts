@@ -1,6 +1,6 @@
 import { api } from './client';
 import type { Product } from '@/types';
-import { MOCK_PRODUCTS } from '@/data/catalog';
+import { MOCK_PRODUCTS } from '../data/catalog';
 
 interface RawProduct {
   id: string | number;
@@ -76,7 +76,7 @@ export const productsApi = {
       if (raw && raw.id != null) return mapProduct(raw);
       throw new Error('empty');
     } catch {
-      return MOCK_PRODUCTS.find((p) => String(p.id) === String(id));
+      return MOCK_PRODUCTS.find((p: Product) => String(p.id) === String(id));
     }
   },
 };

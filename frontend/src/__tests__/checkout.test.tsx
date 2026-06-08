@@ -9,7 +9,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, fireEvent, act } from '@testing-library/react';
 import { renderWithProviders, seedGuestCart } from './test-utils';
 import { CheckoutPage } from '@/pages/CheckoutPage';
-import { MOCK_PRODUCTS } from '@/data/catalog';
+import { MOCK_PRODUCTS } from '../data/catalog';
 import type { CartItem } from '@/types';
 
 vi.mock('framer-motion', () => import('./mocks/framer-motion'));
