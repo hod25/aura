@@ -31,9 +31,11 @@ out/
 
 # --- Local MySQL docker volume / database storage ----------------------------
 # (in case the db volume is bind-mounted into the repo instead of a named volume)
-data/
-mysql-data/
-db-data/
+# NOTE: scope these to the repo root only (leading slash) so they do not match
+# application source folders such as `frontend/src/data/`.
+/data/
+/mysql-data/
+/db-data/
 docker/mysql/data/
 *.sqlite
 *.sqlite3
